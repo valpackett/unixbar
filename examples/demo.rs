@@ -1,10 +1,5 @@
 extern crate unixbar;
 use unixbar::*;
-use unixbar::format::dzen2::Dzen2Formatter;
-use unixbar::format::lemonbar::LemonbarFormatter;
-use unixbar::widget::text::Text;
-use unixbar::widget::wrap::Wrap;
-use unixbar::widget::datetime::DateTime;
 
 fn main() {
     UnixBar::new(LemonbarFormatter::new())

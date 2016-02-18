@@ -4,8 +4,8 @@ pub mod format;
 pub mod widget;
 
 use std::sync::mpsc::channel;
-pub use format::data::{Format, Formatter};
-pub use widget::base::Widget;
+pub use format::*;
+pub use widget::*;
 
 pub struct UnixBar<F: Formatter> {
     formatter: F,
