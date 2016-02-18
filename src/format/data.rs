@@ -1,9 +1,9 @@
 
 #[derive(Debug, Clone, Copy)]
 pub enum MouseButton {
-    Left = 1,
-    Right = 2,
-    Middle = 3,
+    Left,
+    Right,
+    Middle,
 }
 
 #[derive(Debug, Clone)]

@@ -14,8 +14,16 @@ impl Formatter for Dzen2Formatter {
             Format::BgColor(ref c, ref f) =>
                 format!("^bg({}){}^bg()", c, self.format(f)),
             Format::Clickable(ref mb, ref a, ref f) =>
-                format!("^ca({}, {}){}^ca()", *mb as usize, a, self.format(f)),
+                format!("^ca({}, {}){}^ca()", mouse_button(mb), a, self.format(f)),
         }
+    }
+}
+
+fn mouse_button(mb: &MouseButton) -> usize {
+    match *mb {
+        MouseButton::Left => 1,
+        MouseButton::Right => 2,
+        MouseButton::Middle => 3,
     }
 }
 
