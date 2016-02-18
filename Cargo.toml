@@ -1,0 +1,13 @@
+[package]
+name = "unixbar"
+version = "0.0.0"
+authors = [ "Greg V <greg@unrelenting.technology>" ]
+keywords = [ "Desktop", "X11" ]
+description = "unixbar"
+license = "Unlicense"
+readme = "README.md"
+homepage = "https://github.com/myfreeweb/unixbar"
+repository = "https://github.com/myfreeweb/unixbar"
+
+[dependencies]
+chrono = "0.2"
