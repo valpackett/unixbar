@@ -1,4 +1,5 @@
 extern crate chrono;
+#[cfg(feature = "systemstat")] extern crate systemstat;
 
 pub mod format;
 pub mod widget;
