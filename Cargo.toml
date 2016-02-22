@@ -9,5 +9,9 @@ readme = "README.md"
 homepage = "https://github.com/myfreeweb/unixbar"
 repository = "https://github.com/myfreeweb/unixbar"
 
+[features]
+default = ["systemstat"]
+
 [dependencies]
 chrono = "0.2"
+systemstat = { path = "../systemstat", optional = true }
