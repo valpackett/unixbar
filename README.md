@@ -1,15 +1,16 @@
 # unixbar [![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
 
-A better way to set up your [lemonbar]/[dzen2]: with [Rust] and [cargo-script] instead of shell scripting or dynamic languages.
+A better way to set up your [lemonbar]/[dzen2]: with [Rust], [systemstat] and [cargo-script] instead of shell scripting or dynamic languages.
 
 [lemonbar]: https://github.com/LemonBoy/bar
 [dzen2]: https://github.com/robm/dzen
 [Rust]: https://www.rust-lang.org
+[systemstat]: https://github.com/myfreeweb/systemstat
 [cargo-script]: https://github.com/DanielKeep/cargo-script
 
 ## Usage
 
-TODO
+See [examples/demo.rs](https://github.com/myfreeweb/unixbar/blob/master/examples/demo.rs).
 
 ## Contributing
 
