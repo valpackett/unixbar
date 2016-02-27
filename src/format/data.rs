@@ -16,6 +16,7 @@ pub enum Alignment {
 pub enum Format {
     UnescapedStr(String),
     Str(String),
+    Concat(Vec<Box<Format>>),
     Align(Alignment, Box<Format>),
     FgColor(String, Box<Format>),
     BgColor(String, Box<Format>),

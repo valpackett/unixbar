@@ -9,6 +9,8 @@ impl Formatter for Dzen2Formatter {
                 s.clone(),
             Format::Str(ref s) =>
                 s.replace("^", "^^"),
+            Format::Concat(ref fs) =>
+                fs.iter().map(|f| self.format(f)).fold("".to_owned(), |a, b| a + &b),
             Format::Align(_, ref f) =>
                 self.format(f), // :-(
             Format::FgColor(ref c, ref f) =>

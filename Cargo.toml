@@ -14,4 +14,5 @@ default = ["systemstat"]
 
 [dependencies]
 chrono = "0.2"
+nom = "1.2"
 systemstat = { path = "../systemstat", optional = true }

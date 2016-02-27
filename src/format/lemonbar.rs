@@ -9,6 +9,8 @@ impl Formatter for LemonbarFormatter {
                 s.clone(),
             Format::Str(ref s) =>
                 s.replace("%", "%%"),
+            Format::Concat(ref fs) =>
+                fs.iter().map(|f| self.format(f)).fold("".to_owned(), |a, b| a + &b),
             Format::Align(ref a, ref f) =>
                 format!("{}{}", match *a {
                     Alignment::Left => "%{l}",

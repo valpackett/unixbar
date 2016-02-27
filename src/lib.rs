@@ -1,4 +1,5 @@
 extern crate chrono;
+#[macro_use] extern crate nom;
 #[cfg(feature = "systemstat")] extern crate systemstat;
 
 pub mod format;
