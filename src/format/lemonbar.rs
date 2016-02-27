@@ -9,6 +9,12 @@ impl Formatter for LemonbarFormatter {
                 s.clone(),
             Format::Str(ref s) =>
                 s.replace("%", "%%"),
+            Format::Align(ref a, ref f) =>
+                format!("{}{}", match *a {
+                    Alignment::Left => "%{l}",
+                    Alignment::Center => "%{c}",
+                    Alignment::Right => "%{r}",
+                }, self.format(f)),
             Format::FgColor(ref c, ref f) =>
                 format!("%{{F{}}}{}%{{F-}}", c, self.format(f)),
             Format::BgColor(ref c, ref f) =>

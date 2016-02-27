@@ -15,16 +15,15 @@ fn main() {
 
         .add(Text::new(bfmt![click[MouseButton::Left => "notify-send hi"]
                              click[MouseButton::Right => "notify-send 'what?'"]
-                             fg["#11bb55"] text[" HI "]]))
+                             fg["#11bb55"] text[" Hello World! "]]))
 
-        .add(Wrap::new(
-             |f| bfmt![fg["#bb1155"] f],
-             DateTime::new(" %Y-%m-%d %H:%M:%S %z ")))
+        .add(Text::new(bfmt![right]))
 
         .add(Periodic::new(
              Duration::from_secs(2),
              || match System::new().memory() {
-                 Ok(mem) => bfmt![bg["#556677"] fmt[" {}/{} RAM ", mem.free, mem.free + mem.active + mem.inactive + mem.wired + mem.cache]],
+                 Ok(mem) => bfmt![bg["#556677"] fmt[" {}/{} RAM ", mem.free.to_string(false).replace(" GB", ""),
+                                                    mem.free + mem.active + mem.inactive + mem.wired + mem.cache]],
                  Err(_) => bfmt![fg["#bb1155"] text["error"]],
              }))
 
@@ -32,9 +31,13 @@ fn main() {
              Duration::from_secs(1),
              || System::new().cpu_load_aggregate().unwrap(),
              |res| match res {
-                 Ok(cpu) => bfmt![fg["#99aaff"] fmt[" {:.2}% CPU ", (1.0 - cpu.idle) * 100.0]],
+                 Ok(cpu) => bfmt![fg["#99aaff"] fmt[" {:.1}% CPU ", (1.0 - cpu.idle) * 100.0]],
                  Err(_) => bfmt![fg["#bb1155"] text["error"]],
              }))
+
+        .add(Wrap::new(
+             |f| bfmt![fg["#bb1155"] f],
+             DateTime::new(" %Y-%m-%d %H:%M:%S %z ")))
 
         .run();
 }

@@ -9,6 +9,8 @@ impl Formatter for Dzen2Formatter {
                 s.clone(),
             Format::Str(ref s) =>
                 s.replace("^", "^^"),
+            Format::Align(_, ref f) =>
+                self.format(f), // :-(
             Format::FgColor(ref c, ref f) =>
                 format!("^fg({}){}^fg()", c, self.format(f)),
             Format::BgColor(ref c, ref f) =>
