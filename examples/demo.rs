@@ -28,8 +28,7 @@ fn main() {
         .add(Periodic::new(
              Duration::from_secs(2),
              || match System::new().memory() {
-                 Ok(mem) => bfmt![bg["#556677"] fmt[" {}/{} RAM ", mem.free.to_string(false).replace(" GB", ""),
-                                                    mem.free + mem.active + mem.inactive + mem.wired + mem.cache]],
+                 Ok(mem) => bfmt![bg["#556677"] fmt[" {}/{} RAM ", mem.free.to_string(false).replace(" GB", ""), mem.total]],
                  Err(_) => bfmt![fg["#bb1155"] text["error"]],
              }))
 
