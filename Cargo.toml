@@ -1,6 +1,6 @@
 [package]
 name = "unixbar"
-version = "0.0.0"
+version = "0.1.0"
 authors = [ "Greg V <greg@unrelenting.technology>" ]
 keywords = [ "Desktop", "X11" ]
 description = "unixbar"
@@ -15,4 +15,4 @@ default = ["systemstat"]
 [dependencies]
 chrono = "0.2"
 nom = "1.2"
-systemstat = { path = "../systemstat", optional = true }
+systemstat = { version = "0", optional = true }
