@@ -8,11 +8,17 @@ license = "Unlicense"
 readme = "README.md"
 homepage = "https://github.com/myfreeweb/unixbar"
 repository = "https://github.com/myfreeweb/unixbar"
+build = "build.rs"
 
 [features]
-default = ["systemstat"]
+default = ["systemstat", "xkb"]
+xkb = ["xcb", "pkg-config"]
+
+[build-dependencies]
+pkg-config = { version = "0.3", optional = true }
 
 [dependencies]
 chrono = "0.2"
 nom = "1.2"
 systemstat = { version = "0", optional = true }
+xcb = { version = "0.6", features = ["xkb"], optional = true }

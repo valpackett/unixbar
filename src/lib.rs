@@ -1,6 +1,7 @@
 extern crate chrono;
 #[macro_use] extern crate nom;
 #[cfg(feature = "systemstat")] extern crate systemstat;
+#[cfg(feature = "xkb")] extern crate xcb;
 
 pub mod format;
 pub mod widget;

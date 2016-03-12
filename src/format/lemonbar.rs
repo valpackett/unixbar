@@ -1,6 +1,8 @@
 use super::data::*;
 
-pub struct LemonbarFormatter;
+pub struct LemonbarFormatter {
+    escape: bool,
+}
 
 impl Formatter for LemonbarFormatter {
     fn format(&self, data: &Format) -> String {
@@ -8,7 +10,7 @@ impl Formatter for LemonbarFormatter {
             Format::UnescapedStr(ref s) =>
                 s.clone(),
             Format::Str(ref s) =>
-                s.replace("%", "%%"),
+                if self.escape { s.replace("%", "%%") } else { s.to_owned() },
             Format::Concat(ref fs) =>
                 fs.iter().map(|f| self.format(f)).fold("".to_owned(), |a, b| a + &b),
             Format::Align(ref a, ref f) =>
@@ -37,6 +39,11 @@ fn mouse_button(mb: &MouseButton) -> usize {
 
 impl LemonbarFormatter {
     pub fn new() -> LemonbarFormatter {
-        LemonbarFormatter
+        LemonbarFormatter { escape: true }
+    }
+
+    /// Turn off escaping for e.g. lemonbar-xft
+    pub fn new_noescape() -> LemonbarFormatter {
+        LemonbarFormatter { escape: false }
     }
 }
