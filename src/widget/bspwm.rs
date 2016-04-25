@@ -53,7 +53,7 @@ impl<F> Widget for Bspwm<F> where F: Fn(Vec<BspwmDesktop>) -> Format + Sync + Se
         thread::spawn(move || {
             loop {
                 // Should be possible to use the socket directly...
-                let bspc = Command::new("bspc").arg("control").arg("--subscribe")
+                let bspc = Command::new("bspc").arg("subscribe")
                     .stdout(Stdio::piped()).spawn().expect("Couldn't run bspc");
                 for line in BufReader::new(bspc.stdout.unwrap()).lines() {
                     let mut writer = last_value.write().unwrap();
