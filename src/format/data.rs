@@ -25,6 +25,14 @@ pub enum Format {
 
 pub trait Formatter {
     fn format(&self, data: &Format) -> String;
+
+    fn format_all(&self, data: &[Format]) -> String {
+        let mut line = String::new();
+        for f in data {
+            line.push_str(self.format(f).as_ref());
+        }
+        line
+    }
 }
 
 #[macro_export]

@@ -2,6 +2,8 @@ extern crate chrono;
 #[macro_use] extern crate nom;
 #[cfg(feature = "systemstat")] extern crate systemstat;
 #[cfg(feature = "xkb")] extern crate xcb;
+extern crate serde;
+extern crate serde_json;
 
 pub mod format;
 pub mod widget;
@@ -39,10 +41,8 @@ impl<F: Formatter> UnixBar<F> {
     }
 
     fn show(&mut self) {
-        let mut line = String::new();
-        for widget in &mut self.widgets {
-            line.push_str(self.formatter.format(&widget.current_value()).as_ref());
-        }
+        let vals : Vec<Format> = self.widgets.iter().map(|ref w| w.current_value()).collect();
+        let line = self.formatter.format_all(&vals);
         println!("{}", line.replace("\n", ""));
     }
 }

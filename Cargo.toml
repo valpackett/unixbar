@@ -22,3 +22,5 @@ chrono = "0.2"
 nom = "1.2"
 systemstat = { version = "0", optional = true }
 xcb = { version = "0.6", features = ["xkb"], optional = true }
+serde = "0.7"
+serde_json = "0.7"
