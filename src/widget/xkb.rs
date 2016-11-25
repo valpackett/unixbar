@@ -23,43 +23,44 @@ where F: Fn(u8) -> Format + Sync + Send + 'static {
         let last_id = self.last_id.clone();
         let last_value = self.last_value.clone();
         thread::spawn(move || {
-            let (conn, _) = xcb::Connection::connect();
-            {
-                let cookie = xkb::use_extension(&conn, 1, 0);
-                match cookie.get_reply() {
-                    Ok(r) => {
-                        if !r.supported() { return }
+            if let Ok((conn, _)) = xcb::Connection::connect(None) {
+                {
+                    let cookie = xkb::use_extension(&conn, 1, 0);
+                    match cookie.get_reply() {
+                        Ok(r) => {
+                            if !r.supported() { return }
+                        }
+                        Err(_) => { return }
                     }
-                    Err(_) => { return }
                 }
-            }
-            {
-                let map_parts = xcb::xkb::MAP_PART_MODIFIER_MAP;
-                let events = xcb::xkb::EVENT_TYPE_STATE_NOTIFY;
-                let cookie = xkb::select_events_checked(
-                    &conn,
-                    xkb::ID_USE_CORE_KBD as u16,
-                    events as u16, 0, events as u16,
-                    map_parts as u16, map_parts as u16, None);
-                let _ = cookie.request_check();
-            }
-            loop {
-                let event = conn.wait_for_event();
-                match event {
-                    None => { break; }
-                    Some(event) => {
-                        let evt : &xkb::StateNotifyEvent = xcb::cast_event(&event);
-                        let new_id = evt.group();
-                        let mut id_writer = last_id.write().unwrap();
-                        if *id_writer != new_id {
-                            *id_writer = new_id;
-                            let mut writer = last_value.write().unwrap();
-                            *writer = (*formatter)(new_id);
-                            let _ = tx.send(());
+                {
+                    let map_parts = xcb::xkb::MAP_PART_MODIFIER_MAP;
+                    let events = xcb::xkb::EVENT_TYPE_STATE_NOTIFY;
+                    let cookie = xkb::select_events_checked(
+                        &conn,
+                        xkb::ID_USE_CORE_KBD as u16,
+                        events as u16, 0, events as u16,
+                        map_parts as u16, map_parts as u16, None);
+                    let _ = cookie.request_check();
+                }
+                loop {
+                    let event = conn.wait_for_event();
+                    match event {
+                        None => { break; }
+                        Some(event) => {
+                            let evt : &xkb::StateNotifyEvent = xcb::cast_event(&event);
+                            let new_id = evt.group();
+                            let mut id_writer = last_id.write().unwrap();
+                            if *id_writer != new_id {
+                                *id_writer = new_id;
+                                let mut writer = last_value.write().unwrap();
+                                *writer = (*formatter)(new_id);
+                                let _ = tx.send(());
+                            }
                         }
                     }
                 }
-            }
+            } else { return }
         });
     }
 }
