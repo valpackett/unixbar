@@ -8,6 +8,35 @@ use super::base::Widget;
 use format::data::Format;
 use nom::IResult;
 
+#[derive(Debug,Clone)]
+pub enum WindowMode {
+    Tiled,
+    PseudoTiled,
+    Floating,
+    FullScreen,
+    /// No window is focused
+    None
+}
+impl WindowMode {
+    fn from_byte(byte: Option<&[u8]>) -> WindowMode {
+        let byte = byte.map(|inner| inner[0] as char);
+        match byte {
+            Some('T') => WindowMode::Tiled,
+            Some('P') => WindowMode::PseudoTiled,
+            Some('F') => WindowMode::Floating,
+            Some('=') => WindowMode::FullScreen,
+            _ => WindowMode::None
+        }
+    }
+}
+
+#[derive(Debug,Clone)]
+pub struct BspwmState {
+    pub desktops: Vec<BspwmDesktop>,
+    pub monocle: bool,
+    pub window_mode: WindowMode,
+}
+
 #[derive(Debug, Clone)]
 pub struct BspwmDesktop {
     pub name: String,
@@ -16,33 +45,51 @@ pub struct BspwmDesktop {
     pub urgent: bool,
 }
 
-named!(bspstr<&[u8], Vec<BspwmDesktop> >,
-   chain!(
-       tag!("WM") ~
-       take_until_and_consume!(":") ~
-       d: many0!(
-           chain!(
-               mode: take!(1) ~
-               name: take_until_and_consume!(":") ,
-               || BspwmDesktop {
-                   name: String::from_utf8_lossy(name).into_owned(),
-                   occupied: mode == b"o" || mode == b"O",
-                   focused: mode == b"F" || mode == b"O" || mode == b"U",
-                   urgent: mode == b"u" || mode == b"U",
-               }
-           )
-       ) ~
-       tag!("LT") ,
-       || d
-   )
+named!(bspstr<&[u8], BspwmState>,
+    do_parse!(
+        tag!("WM") >>
+        take_until_and_consume!(":") >>
+        d: many0!(
+            do_parse!(
+                mode: one_of!(&"oOfFuU"[..]) >>
+                name: take_until_and_consume!(":") >>
+                (BspwmDesktop {
+                    name: String::from_utf8_lossy(name).into_owned(),
+                    occupied: mode == 'o' || mode == 'O',
+                    focused: mode == 'F' || mode == 'O' || mode == 'U',
+                    urgent: mode == 'u' || mode == 'U',
+                })
+            )
+        ) >>
+        tag!("L") >>
+        layout: take!(1) >>
+
+        wmode: opt!(
+            complete!(
+                do_parse!(
+                    tag!(":T") >>
+                    wmode: take!(1) >>
+                    tag!(":G") >>
+                    (wmode)
+                )
+            )
+        ) >>
+        (BspwmState {
+            desktops: d,
+            monocle: layout == b"M",
+            window_mode: WindowMode::from_byte(wmode),
+        })
+    )
 );
 
-pub struct Bspwm<F: Fn(Vec<BspwmDesktop>) -> Format> {
+
+
+pub struct Bspwm<F: Fn(BspwmState) -> Format> {
     updater: Arc<Box<F>>,
     last_value: Arc<RwLock<Format>>,
 }
 
-impl<F> Widget for Bspwm<F> where F: Fn(Vec<BspwmDesktop>) -> Format + Sync + Send + 'static  {
+impl<F> Widget for Bspwm<F> where F: Fn(BspwmState) -> Format + Sync + Send + 'static  {
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -58,9 +105,13 @@ impl<F> Widget for Bspwm<F> where F: Fn(Vec<BspwmDesktop>) -> Format + Sync + Se
                 for line in BufReader::new(bspc.stdout.unwrap()).lines() {
                     let mut writer = last_value.write().unwrap();
                     let line = line.unwrap_or("".to_owned());
-                    if let IResult::Done(_, result) = bspstr(&line.into_bytes()) {
-                        *writer = (*updater)(result);
-                        let _ = tx.send(());
+                    eprintln!("{}", line);
+                    match bspstr(&line.into_bytes()) {
+                        IResult::Done(_, result) => {
+                            *writer = (*updater)(result);
+                            let _ = tx.send(());
+                        }
+                        result => eprintln!("Error: {:?}", result)
                     }
                 }
                 thread::sleep(Duration::from_millis(500));
@@ -69,7 +120,7 @@ impl<F> Widget for Bspwm<F> where F: Fn(Vec<BspwmDesktop>) -> Format + Sync + Se
     }
 }
 
-impl<F> Bspwm<F> where F: Fn(Vec<BspwmDesktop>) -> Format {
+impl<F> Bspwm<F> where F: Fn(BspwmState) -> Format {
     pub fn new(updater: F) -> Box<Bspwm<F>> {
         Box::new(Bspwm {
             updater: Arc::new(Box::new(updater)),
