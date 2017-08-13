@@ -105,13 +105,9 @@ impl<F> Widget for Bspwm<F> where F: Fn(BspwmState) -> Format + Sync + Send + 's
                 for line in BufReader::new(bspc.stdout.unwrap()).lines() {
                     let mut writer = last_value.write().unwrap();
                     let line = line.unwrap_or("".to_owned());
-                    eprintln!("{}", line);
-                    match bspstr(&line.into_bytes()) {
-                        IResult::Done(_, result) => {
-                            *writer = (*updater)(result);
-                            let _ = tx.send(());
-                        }
-                        result => eprintln!("Error: {:?}", result)
+                    if let IResult::Done(_, result) = bspstr(&line.into_bytes()) {
+                        *writer = (*updater)(result);
+                        let _ = tx.send(());
                     }
                 }
                 thread::sleep(Duration::from_millis(500));
