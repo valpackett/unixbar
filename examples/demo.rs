@@ -13,11 +13,26 @@ use systemstat::{System, Platform};
 fn main() {
     UnixBar::new(LemonbarFormatter::new())
 
+        .add(Mpd::new(
+            |mpd| {
+                if let Some(true) = mpd.playback.map(|playback| playback.playing) {
+                    if mpd.title == "" {
+                        bfmt![fmt["{}", mpd.filename]]
+                    } else if mpd.artist == "" {
+                        bfmt![fmt["{}", mpd.title]]
+                    } else {
+                        bfmt![fmt["{} - {}", mpd.title, mpd.artist ]]
+                    }
+                } else {
+                    bfmt![text["(paused)"]]
+                }
+            }
+        ))
         .add(Text::new(bfmt![click[MouseButton::Left => "notify-send hi"]
                              click[MouseButton::Right => "notify-send 'what?'"]
                              fg["#11bb55"] text[" Hello World! "]]))
 
-        .add(Bspwm::new(|desktops| Format::Concat(desktops.iter().map(|d| Box::new({
+        .add(Bspwm::new(|bsp| Format::Concat(bsp.desktops.iter().map(|d| Box::new({
                 let bg = if d.focused { "#99aa11" } else { "#111111" };
                 bfmt![click[MouseButton::Left => format!("bspc desktop -f {}", d.name)]
                       bg[bg] fmt[" {} ", d.name]]

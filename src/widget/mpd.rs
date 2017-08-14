@@ -11,6 +11,7 @@ use nom::IResult;
 
 #[derive(Debug,Clone)]
 pub struct PlaybackInfo {
+    /// playing or paused
     pub playing: bool,
 
     pub progress: Duration,
@@ -25,7 +26,7 @@ pub struct SongInfo {
     pub artist: String,
     pub album: String,
     pub filename: String,
-    pub playback: PlaybackInfo
+    pub playback: Option<PlaybackInfo>
 }
 
 named!(parse_playback_info<&[u8], PlaybackInfo>,
@@ -81,14 +82,14 @@ impl<F> Widget for Mpd<F> where F: Fn(SongInfo) -> Format + Sync + Send + 'stati
         thread::spawn(move || {
             loop {
                 // Wait for event
-                let _ = Command::new("mpc").arg("idle").arg("player").status();
+                let _ = Command::new("mpc").arg("idle").arg("player").status(); // TODO move to end (??)
 
                 let title = mpc_get_format("%title%").unwrap_or("".to_owned());
                 let artist = mpc_get_format("%artist%").unwrap_or("".to_owned());
                 let album = mpc_get_format("%album%").unwrap_or("".to_owned());
                 let filename = mpc_get_format("%file%").unwrap_or("".to_owned());
 
-                let playback_info = get_playback_info().unwrap();
+                let playback_info = get_playback_info();
 
                 let state = SongInfo {
                     title: title,
@@ -101,6 +102,7 @@ impl<F> Widget for Mpd<F> where F: Fn(SongInfo) -> Format + Sync + Send + 'stati
                 let mut writer = last_value.write().unwrap();
                 *writer = (*updater)(state);
                 let _ = tx.send(());
+
             }
         });
     }
