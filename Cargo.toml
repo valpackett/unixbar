@@ -27,6 +27,3 @@ serde = "0.8"
 serde_json = "0.8"
 alsa = { version = "0.1.10", optional = true }
 libc = { version = "0.2.29", optional = true }
-
-[patch.crates-io]
-systemstat = { git = "https://github.com/myfreeweb/systemstat" }
