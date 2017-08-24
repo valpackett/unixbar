@@ -13,6 +13,13 @@ use systemstat::{System, Platform};
 fn main() {
     UnixBar::new(LemonbarFormatter::new())
 
+        .add(Volume::new(
+            |volume|
+                match volume.muted {
+                    false => bfmt![fmt["Volume {}", (volume.volume * 100.0) as i32]],
+                    true => bfmt![fmt["(muted) {}", (volume.volume * 100.0) as i32]]
+                }
+        ))
         .add(Mpd::new(
             |mpd| {
                 if let Some(true) = mpd.playback.map(|playback| playback.playing) {
