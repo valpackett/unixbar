@@ -11,9 +11,8 @@ repository = "https://github.com/myfreeweb/unixbar"
 build = "build.rs"
 
 [features]
-default = ["systemstat", "xkb", "unix_alsa"]
+default = ["systemstat", "xkb"]
 xkb = ["xcb", "pkg-config"]
-unix_alsa = ["alsa", "libc"]
 
 [build-dependencies]
 pkg-config = { version = "0.3", optional = true }
@@ -25,8 +24,7 @@ systemstat = { version = "0", optional = true }
 xcb = { version = "0.8", features = ["xkb"], optional = true }
 serde = "0.8"
 serde_json = "0.8"
-alsa = { version = "0.1.10", optional = true }
-libc = { version = "0.2.29", optional = true }
 
-[patch.crates-io]
-systemstat = { git = "https://github.com/myfreeweb/systemstat" }
+[target.'cfg(target_os = "linux")'.dependencies]
+alsa = "0.1.10"
+libc = "0.2.29"

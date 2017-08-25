@@ -1,6 +1,6 @@
-use alsa::PollDescriptors;
-use alsa::mixer::{Mixer, SelemId, SelemChannelId};
-use alsa::ctl::Ctl;
+use ::alsa::PollDescriptors;
+use ::alsa::mixer::{Mixer, SelemId, SelemChannelId};
+use ::alsa::ctl::Ctl;
 
 use format::data::Format;
 
