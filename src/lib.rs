@@ -2,8 +2,8 @@ extern crate chrono;
 #[macro_use] extern crate nom;
 #[cfg(feature = "systemstat")] extern crate systemstat;
 #[cfg(feature = "xkb")] extern crate xcb;
-#[cfg(feature = "unix_alsa")] extern crate alsa;
-#[cfg(feature = "unix_alsa")] extern crate libc;
+#[cfg(target_os = "linux")] extern crate alsa;
+#[cfg(target_os = "linux")] extern crate libc;
 extern crate serde;
 extern crate serde_json;
 

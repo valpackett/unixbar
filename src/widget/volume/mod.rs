@@ -3,8 +3,8 @@ use widget::base::Widget;
 use format::data::Format;
 use std::sync::mpsc::Sender;
 
-#[cfg(unix)] pub mod alsa;
-#[cfg(unix)] pub use self::alsa::ALSA;
+#[cfg(target_os = "linux")] pub mod alsa;
+#[cfg(target_os = "linux")] pub use self::alsa::ALSA;
 
 pub struct VolumeState {
     pub volume: f32,
