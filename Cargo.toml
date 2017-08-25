@@ -22,8 +22,11 @@ pkg-config = { version = "0.3", optional = true }
 chrono = "0.2"
 nom = "2.0"
 systemstat = { version = "0", optional = true }
-xcb = { version = "0.7", features = ["xkb"], optional = true }
+xcb = { version = "0.8", features = ["xkb"], optional = true }
 serde = "0.8"
 serde_json = "0.8"
 alsa = { version = "0.1.10", optional = true }
 libc = { version = "0.2.29", optional = true }
+
+[patch.crates-io]
+systemstat = { git = "https://github.com/myfreeweb/systemstat" }

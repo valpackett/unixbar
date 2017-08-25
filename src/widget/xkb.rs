@@ -48,7 +48,7 @@ where F: Fn(u8) -> Format + Sync + Send + 'static {
                     match event {
                         None => { break; }
                         Some(event) => {
-                            let evt : &xkb::StateNotifyEvent = xcb::cast_event(&event);
+                            let evt : &xkb::StateNotifyEvent = unsafe { xcb::cast_event(&event) };
                             let new_id = evt.group();
                             let mut id_writer = last_id.write().unwrap();
                             if *id_writer != new_id {
