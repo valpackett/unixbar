@@ -4,7 +4,9 @@ use format::data::Format;
 use std::sync::mpsc::Sender;
 
 #[cfg(target_os = "linux")] pub mod alsa;
-#[cfg(target_os = "linux")] pub use self::alsa::ALSA;
+#[cfg(target_os = "linux")] pub use self::alsa::{ALSA, default_volume};
+#[cfg(target_os = "freebsd")] pub mod freebsd;
+#[cfg(target_os = "freebsd")] pub use self::freebsd::{FreeBSDSound, default_volume};
 
 pub struct VolumeState {
     pub volume: f32,

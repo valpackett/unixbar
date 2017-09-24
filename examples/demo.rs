@@ -13,7 +13,7 @@ use systemstat::{System, Platform};
 fn main() {
     UnixBar::new(LemonbarFormatter::new())
 
-        .add(Volume::new(ALSA::new(),
+        .add(Volume::new(default_volume(),
             |volume|
                 match volume.muted {
                     false => bfmt![fmt["Volume {}", (volume.volume * 100.0) as i32]],

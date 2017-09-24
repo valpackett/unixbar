@@ -39,14 +39,15 @@ impl ALSA {
 }
 
 impl<F> VolumeBackend<F> for ALSA
-    where F: Fn(VolumeState) -> Format + Sync + Send + 'static{
+    where F: Fn(VolumeState) -> Format + Sync + Send + 'static {
+
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
+
     fn spawn_notifier(&mut self, tx: Sender<()>, updater: Arc<Box<F>>) {
-        let ctl =Ctl::open(CString::new("default").unwrap().as_ref(), false).unwrap();
+        let ctl = Ctl::open(CString::new("default").unwrap().as_ref(), false).unwrap();
         ctl.subscribe_events(true).unwrap();
-            
 
         let mut fds = Vec::<pollfd>::with_capacity(ctl.count());
         fds.resize(ctl.count(), pollfd {fd: 0, events: 0, revents: 0});
@@ -60,7 +61,7 @@ impl<F> VolumeBackend<F> for ALSA
                     let err = poll(fds.as_mut_ptr(), fds.len() as u64, -1);
                     // TODO check error
                 }
-                
+
                 match ctl.read() {
                     Ok(Some(_)) => {
                         let state = ALSA::get_volume_state();
@@ -74,4 +75,8 @@ impl<F> VolumeBackend<F> for ALSA
             }
         });
     }
+}
+
+pub fn default_volume() -> FreeBSDSound {
+    ALSA::new()
 }

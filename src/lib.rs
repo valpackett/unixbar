@@ -3,7 +3,7 @@ extern crate chrono;
 #[cfg(feature = "systemstat")] extern crate systemstat;
 #[cfg(feature = "xkb")] extern crate xcb;
 #[cfg(target_os = "linux")] extern crate alsa;
-#[cfg(target_os = "linux")] extern crate libc;
+#[cfg(any(target_os = "linux", target_os = "freebsd"))] extern crate libc;
 extern crate serde;
 extern crate serde_json;
 
