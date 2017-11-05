@@ -1,4 +1,7 @@
-# unixbar [![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
+[![crates.io](https://img.shields.io/crates/v/unixbar.svg)](https://crates.io/crates/unixbar)
+[![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
+
+# unixbar
 
 A better way to set up your [lemonbar]/[dzen2]/[i3bar]: with [Rust] and [cargo-script] instead of shell scripting or dynamic languages.
 
