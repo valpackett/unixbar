@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use widget::base::Sender;
 use std::time::Duration;
 use std::thread;
 use std::sync::{Arc, RwLock};
@@ -120,6 +120,9 @@ where F: Fn(SongInfo) -> Format + Sync + Send + 'static {
                                 artist: get_entry(metas, "xesam:artist").and_then(|m| extract_str(m)).unwrap_or("".to_owned()),
                                 album: get_entry(metas, "xesam:album").and_then(|m| extract_str(m)).unwrap_or("".to_owned()),
                                 filename: get_entry(metas, "xesam:url").and_then(|m| extract_str(m)).unwrap_or("".to_owned()),
+                                musicbrainz_track: get_entry(metas, "xesam:musicBrainzTrackID").and_then(|m| extract_str(m)),
+                                musicbrainz_artist: get_entry(metas, "xesam:musicBrainzArtistID").and_then(|m| extract_str(m)),
+                                musicbrainz_album: get_entry(metas, "xesam:musicBrainzAlbumID").and_then(|m| extract_str(m)),
                                 playback: match props.get("PlaybackStatus") {
                                     Some(&MessageItem::Str(ref status)) => Some(PlaybackInfo {
                                         playing: status == "Playing",
@@ -135,13 +138,26 @@ where F: Fn(SongInfo) -> Format + Sync + Send + 'static {
                                     _ => None
                                 },
                             };
-                            println!("{:?}", state);
 
                             let mut writer = last_value.write().unwrap();
                             *writer = (*updater)(state);
                             let _ = tx.send(());
                         }
                     }
+                } else {
+                    let mut writer = last_value.write().unwrap();
+                    *writer = (*updater)(SongInfo {
+                        title: "".to_owned(),
+                        artist: "".to_owned(),
+                        album: "".to_owned(),
+                        filename: "".to_owned(),
+                        musicbrainz_track: None,
+                        musicbrainz_artist: None,
+                        musicbrainz_album: None,
+                        playback: None
+                    });
+                    let _ = tx.send(());
+                    thread::sleep(Duration::from_millis(1000)); // more sleepy without player
                 }
 
                 // Ideally, this would be smarter than constantly looping...

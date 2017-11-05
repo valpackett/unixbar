@@ -7,11 +7,36 @@ pub enum MouseButton {
     Right,
 }
 
+impl MouseButton {
+    pub fn to_number(&self) -> u8 {
+        match self {
+            &MouseButton::Left => 1,
+            &MouseButton::Middle => 2,
+            &MouseButton::Right => 3,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum Alignment {
     Left,
     Center,
     Right,
+}
+
+#[derive(Debug, Clone)]
+pub enum ClickAction {
+    Function(MouseButton, String),
+    ShellCommand(MouseButton, String),
+}
+
+impl ClickAction {
+    pub fn to_string(&self) -> String {
+        match self {
+            &ClickAction::Function(ref mb, ref name) => format!("f{:?}{}", mb, name),
+            &ClickAction::ShellCommand(ref mb, ref cmd) => format!("s{:?}{}", mb, cmd),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -22,20 +47,23 @@ pub enum Format {
     Align(Alignment, Box<Format>),
     FgColor(String, Box<Format>),
     BgColor(String, Box<Format>),
-    ClickableFn(MouseButton, String, Box<Format>),
-    ClickableSh(MouseButton, String, Box<Format>),
+    Clickable(ClickAction, Box<Format>),
+    NoSeparator(Box<Format>),
+    Padding(i32, Box<Format>),
 }
 
 pub trait Formatter {
-    fn format(&self, data: &Format) -> String;
+    fn format(&mut self, data: &Format) -> String;
 
-    fn format_all(&self, data: &[Format]) -> String {
+    fn format_all(&mut self, data: &[Format]) -> String {
         let mut line = String::new();
         for f in data {
             line.push_str(self.format(f).as_ref());
         }
         line
     }
+
+    fn handle_stdin(&self, _line: Option<String>, _fns: &mut BTreeMap<String, Box<FnMut()>>) {}
 }
 
 #[macro_export]
@@ -49,11 +77,14 @@ macro_rules! bfmt {
     (fg[$color:expr] $($rest:tt)*) => { Format::FgColor($color.to_owned(), Box::new(bfmt!($($rest)*))) };
     (bg[$color:expr] $($rest:tt)*) => { Format::BgColor($color.to_owned(), Box::new(bfmt!($($rest)*))) };
     (click[$btn:expr => fn $act:expr] $($rest:tt)*) => {
-        Format::ClickableFn($btn, $act.to_owned(), Box::new(bfmt!($($rest)*)))
+        Format::Clickable(ClickAction::Function($btn, $act.to_owned()), Box::new(bfmt!($($rest)*)))
     };
     (click[$btn:expr => sh $act:expr] $($rest:tt)*) => {
-        Format::ClickableSh($btn, $act.to_owned(), Box::new(bfmt!($($rest)*)))
+        Format::Clickable(ClickAction::ShellCommand($btn, $act.to_owned()), Box::new(bfmt!($($rest)*)))
     };
+    (no_sep $($rest:tt)*) => { Format::NoSeparator(Box::new(bfmt!($($rest)*))) };
+    (pad[$pad:expr] $($rest:tt)*) => { Format::Padding($pad, Box::new(bfmt!($($rest)*))) };
+    (multi[$(($($rest:tt)*)),*]) => { Format::Concat(vec![ $( Box::new(bfmt!( $($rest)* )) ),* ]) };
     ($e:expr) => { $e };
     () => { Format::UnescapedStr("".to_owned()) };
 }

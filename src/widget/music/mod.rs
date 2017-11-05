@@ -1,7 +1,6 @@
-use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use std::time::Duration;
-use super::base::Widget;
+use widget::base::{Widget, Sender};
 use format::data::Format;
 
 pub mod mpd;
@@ -28,6 +27,9 @@ pub struct SongInfo {
     pub artist: String,
     pub album: String,
     pub filename: String,
+    pub musicbrainz_track: Option<String>,
+    pub musicbrainz_artist: Option<String>,
+    pub musicbrainz_album: Option<String>,
     pub playback: Option<PlaybackInfo>
 }
 

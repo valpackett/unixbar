@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use widget::base::Sender;
 use std::time::Duration;
 use std::io::{BufReader, BufRead};
 use std::thread;
@@ -124,6 +124,9 @@ where F: Fn(SongInfo) -> Format + Sync + Send + 'static {
                     artist: mpc_get_format("%artist%").unwrap_or("".to_owned()),
                     album: mpc_get_format("%album%").unwrap_or("".to_owned()),
                     filename: mpc_get_format("%file%").unwrap_or("".to_owned()),
+                    musicbrainz_track: None,
+                    musicbrainz_artist: None,
+                    musicbrainz_album: None,
                     playback: get_playback_info(),
                 };
 

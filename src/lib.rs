@@ -5,13 +5,14 @@ extern crate chrono;
 #[cfg(feature = "dbus")] extern crate dbus;
 #[cfg(target_os = "linux")] extern crate alsa;
 extern crate libc;
+#[macro_use] extern crate chan;
 extern crate serde;
 extern crate serde_json;
+#[macro_use] extern crate serde_derive;
 
 pub mod format;
 pub mod widget;
 
-use std::sync::mpsc::channel;
 use std::collections::BTreeMap;
 pub use format::*;
 pub use widget::*;
@@ -41,13 +42,27 @@ impl<F: Formatter> UnixBar<F> {
     }
 
     pub fn run(&mut self) {
-        let (tx, rx) = channel();
+        let (wid_tx, wid_rx) = chan::async();
         for widget in &mut self.widgets {
-            widget.spawn_notifier(tx.clone());
+            widget.spawn_notifier(wid_tx.clone());
         }
         self.show();
-        for _ in rx.iter() {
-            self.show();
+        let (stdin_tx, stdin_rx) = chan::async();
+        std::thread::spawn(move || {
+            let stdin = std::io::stdin();
+            let mut line = String::new();
+            loop {
+                line.clear();
+                if let Ok(_) = stdin.read_line(&mut line) {
+                    stdin_tx.send(line.clone());
+                }
+            }
+        });
+        loop {
+            chan_select! {
+                wid_rx.recv() => self.show(),
+                stdin_rx.recv() -> line => self.formatter.handle_stdin(line, &mut self.fns),
+            }
         }
     }
 

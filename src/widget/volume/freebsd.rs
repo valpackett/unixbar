@@ -1,7 +1,7 @@
 use format::data::Format;
+use widget::base::Sender;
 
 use std::sync::{Arc, RwLock};
-use std::sync::mpsc::Sender;
 use std::{thread, fs, mem};
 use std::time::Duration;
 use std::os::unix::io::AsRawFd;

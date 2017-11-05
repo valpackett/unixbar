@@ -1,7 +1,6 @@
-use std::sync::mpsc::Sender;
 use std::sync::{Arc, RwLock};
 use std::thread;
-use super::base::Widget;
+use super::base::{Widget, Sender};
 use format::data::Format;
 use xcb;
 use xcb::xkb;

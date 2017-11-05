@@ -1,8 +1,7 @@
-use std::sync::mpsc::Sender;
 use std::time::Duration;
 use std::thread;
 use chrono::Local;
-use super::base::Widget;
+use super::base::{Widget, Sender};
 use format::data::Format;
 
 pub struct DateTime {

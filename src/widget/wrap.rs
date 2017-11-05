@@ -1,5 +1,4 @@
-use std::sync::mpsc::Sender;
-use super::base::Widget;
+use super::base::{Widget, Sender};
 use format::data::Format;
 
 pub struct Wrap<W, F> {

@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+pub use chan::Sender;
 use format::data::Format;
 
 pub trait Widget {

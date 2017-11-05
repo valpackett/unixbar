@@ -1,8 +1,7 @@
-use std::sync::mpsc::Sender;
 use std::time::Duration;
 use std::{thread, io};
 use std::sync::{Arc, RwLock};
-use super::base::Widget;
+use super::base::{Widget, Sender};
 use format::data::Format;
 use systemstat::DelayedMeasurement;
 

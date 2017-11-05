@@ -1,7 +1,6 @@
 use std::sync::Arc;
-use widget::base::Widget;
+use widget::base::{Widget, Sender};
 use format::data::Format;
-use std::sync::mpsc::Sender;
 
 #[cfg(target_os = "linux")] pub mod alsa;
 #[cfg(target_os = "linux")] pub use self::alsa::{ALSA, default_volume};

@@ -3,9 +3,9 @@ use ::alsa::mixer::{Mixer, SelemId, SelemChannelId};
 use ::alsa::ctl::Ctl;
 
 use format::data::Format;
+use widget::base::Sender;
 
 use std::sync::{Arc, RwLock};
-use std::sync::mpsc::Sender;
 use std::thread;
 use std::ffi::CString;
 
