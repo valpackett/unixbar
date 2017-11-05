@@ -7,6 +7,9 @@ use format::data::Format;
 pub mod mpd;
 pub use self::mpd::MPDMusic;
 
+#[cfg(feature = "dbus")] pub mod mpris;
+#[cfg(feature = "dbus")] pub use self::mpris::MPRISMusic;
+
 #[derive(Debug, Clone)]
 pub struct PlaybackInfo {
     /// playing or paused
@@ -55,4 +58,13 @@ impl<F, B> Music<F, B> where F: Fn(SongInfo) -> Format, B: MusicBackend<F> {
 pub trait MusicBackend<F: Fn(SongInfo) -> Format> {
     fn current_value(&self) -> Format;
     fn spawn_notifier(&mut self, tx: Sender<()>, updater: Arc<Box<F>>);
+}
+
+pub trait MusicControl {
+    fn play(&self);
+    fn pause(&self);
+    fn play_pause(&self);
+    fn stop(&self);
+    fn next(&self);
+    fn prev(&self);
 }

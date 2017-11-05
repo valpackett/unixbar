@@ -23,7 +23,9 @@ impl Formatter for LemonbarFormatter {
                 format!("%{{F{}}}{}%{{F-}}", c, self.format(f)),
             Format::BgColor(ref c, ref f) =>
                 format!("%{{B{}}}{}%{{B-}}", c, self.format(f)),
-            Format::Clickable(ref mb, ref a, ref f) =>
+            Format::ClickableFn(_, _, ref f) =>
+                self.format(f), // TODO self-call
+            Format::ClickableSh(ref mb, ref a, ref f) =>
                 format!("%{{A{}:{}:}}{}%{{A}}", mouse_button(mb), a.replace(":", "\\:"), self.format(f)),
         }
     }

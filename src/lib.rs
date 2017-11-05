@@ -2,8 +2,9 @@ extern crate chrono;
 #[macro_use] extern crate nom;
 #[cfg(feature = "systemstat")] extern crate systemstat;
 #[cfg(feature = "xkb")] extern crate xcb;
+#[cfg(feature = "dbus")] extern crate dbus;
 #[cfg(target_os = "linux")] extern crate alsa;
-#[cfg(any(target_os = "linux", target_os = "freebsd"))] extern crate libc;
+extern crate libc;
 extern crate serde;
 extern crate serde_json;
 
@@ -11,12 +12,14 @@ pub mod format;
 pub mod widget;
 
 use std::sync::mpsc::channel;
+use std::collections::BTreeMap;
 pub use format::*;
 pub use widget::*;
 
 pub struct UnixBar<F: Formatter> {
     formatter: F,
     widgets: Vec<Box<Widget>>,
+    fns: BTreeMap<String, Box<FnMut()>>,
 }
 
 impl<F: Formatter> UnixBar<F> {
@@ -24,7 +27,13 @@ impl<F: Formatter> UnixBar<F> {
         UnixBar {
             formatter: formatter,
             widgets: Vec::new(),
+            fns: BTreeMap::new(),
         }
+    }
+
+    pub fn register_fn<Fn>(&mut self, name: &str, func: Fn) -> &mut UnixBar<F>
+    where Fn: FnMut() + 'static {
+        self.fns.insert(name.to_owned(), Box::new(func)); self
     }
 
     pub fn add(&mut self, widget: Box<Widget>) -> &mut UnixBar<F> {

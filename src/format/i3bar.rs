@@ -65,7 +65,11 @@ impl I3BarFormatter {
                 map.insert("background", c);
                 self.build(line, map, f);
             },
-            Format::Clickable(ref mb, ref a, ref f) => {
+            Format::ClickableFn(ref mb, ref a, ref f) => {
+                // TODO
+                self.build(line, map, f);
+            },
+            Format::ClickableSh(ref mb, ref a, ref f) => {
                 // TODO
                 self.build(line, map, f);
             },

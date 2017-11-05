@@ -21,29 +21,22 @@ fn main() {
                 }
         ))
 
-        .add(Music::new(MPDMusic::new(),
+        .register_fn("play_pause", move || { MPRISMusic::new().play_pause(); })
+        .add(Music::new(MPRISMusic::new(),
             |song| {
-                if let Some(true) = song.playback.map(|playback| playback.playing) {
-                    if song.title == "" {
-                        bfmt![fmt["{}", song.filename]]
-                    } else if song.artist == "" {
-                        bfmt![fmt["{}", song.title]]
-                    } else {
-                        bfmt![fmt["{} - {}", song.title, song.artist ]]
-                    }
-                } else {
-                    bfmt![text["(paused)"]]
-                }
+                let paused = song.playback.map(|playback| playback.playing) == Some(true);
+                bfmt![click[MouseButton::Left => fn "play_pause"]
+                      fmt["{} {} - {}", if paused { "PAUSED" } else { "PLAYING" }, song.title, song.artist]]
             }
         ))
 
-        .add(Text::new(bfmt![click[MouseButton::Left => "notify-send hi"]
-                             click[MouseButton::Right => "notify-send 'what?'"]
+        .add(Text::new(bfmt![click[MouseButton::Left => sh "notify-send hi"]
+                             click[MouseButton::Right => sh "notify-send 'what?'"]
                              fg["#11bb55"] text[" Hello World! "]]))
 
         .add(Bspwm::new(|bsp| Format::Concat(bsp.desktops.iter().map(|d| Box::new({
                 let bg = if d.focused { "#99aa11" } else { "#111111" };
-                bfmt![click[MouseButton::Left => format!("bspc desktop -f {}", d.name)]
+                bfmt![click[MouseButton::Left => sh format!("bspc desktop -f {}", d.name)]
                       bg[bg] fmt[" {} ", d.name]]
             })).collect())))
 

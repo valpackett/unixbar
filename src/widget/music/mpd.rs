@@ -6,7 +6,7 @@ use std::sync::{Arc, RwLock};
 use std::process::{Command, Stdio};
 use nom::IResult;
 use format::data::Format;
-use super::{MusicBackend, PlaybackInfo, SongInfo};
+use super::{MusicBackend, MusicControl, PlaybackInfo, SongInfo};
 
 named!(parse_playback_info<&[u8], PlaybackInfo>,
     do_parse!(
@@ -75,6 +75,36 @@ impl MPDMusic {
         MPDMusic {
             last_value: Arc::new(RwLock::new(Format::Str("".to_owned()))),
         }
+    }
+
+    fn call_cmd(&self, cmd: &str) {
+        let _ = Command::new("mpc").arg(cmd).stdout(Stdio::null()).status();
+    }
+}
+
+impl MusicControl for MPDMusic {
+    fn play(&self) {
+        self.call_cmd("play")
+    }
+
+    fn pause(&self) {
+        self.call_cmd("pause")
+    }
+
+    fn play_pause(&self) {
+        self.call_cmd("toggle")
+    }
+
+    fn stop(&self) {
+        self.call_cmd("stop")
+    }
+
+    fn next(&self) {
+        self.call_cmd("next")
+    }
+
+    fn prev(&self) {
+        self.call_cmd("prev")
     }
 }
 

@@ -17,7 +17,9 @@ impl Formatter for Dzen2Formatter {
                 format!("^fg({}){}^fg()", c, self.format(f)),
             Format::BgColor(ref c, ref f) =>
                 format!("^bg({}){}^bg()", c, self.format(f)),
-            Format::Clickable(ref mb, ref a, ref f) =>
+            Format::ClickableFn(_, _, ref f) =>
+                self.format(f), // TODO self-call
+            Format::ClickableSh(ref mb, ref a, ref f) =>
                 format!("^ca({}, {}){}^ca()", mouse_button(mb), a, self.format(f)),
         }
     }

@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 #[derive(Debug, Clone, Copy)]
 pub enum MouseButton {
     Left,
@@ -20,7 +22,8 @@ pub enum Format {
     Align(Alignment, Box<Format>),
     FgColor(String, Box<Format>),
     BgColor(String, Box<Format>),
-    Clickable(MouseButton, String, Box<Format>),
+    ClickableFn(MouseButton, String, Box<Format>),
+    ClickableSh(MouseButton, String, Box<Format>),
 }
 
 pub trait Formatter {
@@ -45,8 +48,11 @@ macro_rules! bfmt {
     (right $($rest:tt)*) => { Format::Align(Alignment::Right, Box::new(bfmt!($($rest)*))) };
     (fg[$color:expr] $($rest:tt)*) => { Format::FgColor($color.to_owned(), Box::new(bfmt!($($rest)*))) };
     (bg[$color:expr] $($rest:tt)*) => { Format::BgColor($color.to_owned(), Box::new(bfmt!($($rest)*))) };
-    (click[$btn:expr => $act:expr] $($rest:tt)*) => {
-        Format::Clickable($btn, $act.to_owned(), Box::new(bfmt!($($rest)*)))
+    (click[$btn:expr => fn $act:expr] $($rest:tt)*) => {
+        Format::ClickableFn($btn, $act.to_owned(), Box::new(bfmt!($($rest)*)))
+    };
+    (click[$btn:expr => sh $act:expr] $($rest:tt)*) => {
+        Format::ClickableSh($btn, $act.to_owned(), Box::new(bfmt!($($rest)*)))
     };
     ($e:expr) => { $e };
     () => { Format::UnescapedStr("".to_owned()) };
