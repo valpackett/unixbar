@@ -20,21 +20,23 @@ fn main() {
                     true => bfmt![fmt["(muted) {}", (volume.volume * 100.0) as i32]]
                 }
         ))
-        .add(Mpd::new(
-            |mpd| {
-                if let Some(true) = mpd.playback.map(|playback| playback.playing) {
-                    if mpd.title == "" {
-                        bfmt![fmt["{}", mpd.filename]]
-                    } else if mpd.artist == "" {
-                        bfmt![fmt["{}", mpd.title]]
+
+        .add(Music::new(MPDMusic::new(),
+            |song| {
+                if let Some(true) = song.playback.map(|playback| playback.playing) {
+                    if song.title == "" {
+                        bfmt![fmt["{}", song.filename]]
+                    } else if song.artist == "" {
+                        bfmt![fmt["{}", song.title]]
                     } else {
-                        bfmt![fmt["{} - {}", mpd.title, mpd.artist ]]
+                        bfmt![fmt["{} - {}", song.title, song.artist ]]
                     }
                 } else {
                     bfmt![text["(paused)"]]
                 }
             }
         ))
+
         .add(Text::new(bfmt![click[MouseButton::Left => "notify-send hi"]
                              click[MouseButton::Right => "notify-send 'what?'"]
                              fg["#11bb55"] text[" Hello World! "]]))
