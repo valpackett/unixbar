@@ -77,6 +77,6 @@ impl<F> VolumeBackend<F> for ALSA
     }
 }
 
-pub fn default_volume() -> FreeBSDSound {
+pub fn default_volume() -> ALSA {
     ALSA::new()
 }
