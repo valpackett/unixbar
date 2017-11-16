@@ -54,6 +54,12 @@ impl<F> VolumeBackend<F> for ALSA
         let filled = ctl.fill(&mut fds).unwrap();
         assert!(filled == ctl.count());
 
+        let initial_state = ALSA::get_volume_state();
+        {
+            let mut writer = self.last_value.write().unwrap();
+            *writer = (*updater)(initial_state);
+        }
+
         let last_value = self.last_value.clone();
         thread::spawn(move || {
             loop {
