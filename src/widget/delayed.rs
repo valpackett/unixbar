@@ -1,8 +1,8 @@
-use std::time::Duration;
-use std::{thread, io};
-use std::sync::{Arc, RwLock};
-use super::base::{Widget, Sender};
+use super::base::{Sender, Widget};
 use format::data::Format;
+use std::sync::{Arc, RwLock};
+use std::time::Duration;
+use std::{io, thread};
 use systemstat::DelayedMeasurement;
 
 pub struct Delayed<T, F: Fn(io::Result<T>) -> Format, U: Fn() -> DelayedMeasurement<T>> {
@@ -13,8 +13,10 @@ pub struct Delayed<T, F: Fn(io::Result<T>) -> Format, U: Fn() -> DelayedMeasurem
 }
 
 impl<T, F, U> Widget for Delayed<T, F, U>
-where F: Fn(io::Result<T>) -> Format + Sync + Send + 'static,
-      U: Fn() -> DelayedMeasurement<T> + Sync + Send + 'static {
+where
+    F: Fn(io::Result<T>) -> Format + Sync + Send + 'static,
+    U: Fn() -> DelayedMeasurement<T> + Sync + Send + 'static,
+{
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -39,13 +41,17 @@ where F: Fn(io::Result<T>) -> Format + Sync + Send + 'static,
     }
 }
 
-impl<T, F, U> Delayed<T, F, U> where F: Fn(io::Result<T>) -> Format, U: Fn() -> DelayedMeasurement<T> {
+impl<T, F, U> Delayed<T, F, U>
+where
+    F: Fn(io::Result<T>) -> Format,
+    U: Fn() -> DelayedMeasurement<T>,
+{
     pub fn new(interval: Duration, updater: U, formatter: F) -> Box<Delayed<T, F, U>> {
         Box::new(Delayed {
             interval: interval,
             updater: Arc::new(Box::new(updater)),
             formatter: Arc::new(Box::new(formatter)),
-            last_value: Arc::new(RwLock::new(Format::Str("".to_owned())))
+            last_value: Arc::new(RwLock::new(Format::Str("".to_owned()))),
         })
     }
 }

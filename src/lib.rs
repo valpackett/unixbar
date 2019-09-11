@@ -1,20 +1,27 @@
 extern crate chrono;
-#[macro_use] extern crate nom;
-#[cfg(feature = "systemstat")] extern crate systemstat;
-#[cfg(feature = "xkb")] extern crate xcb;
-#[cfg(feature = "dbus")] extern crate dbus;
-#[cfg(target_os = "linux")] extern crate alsa;
+#[macro_use]
+extern crate nom;
+#[cfg(target_os = "linux")]
+extern crate alsa;
+#[cfg(feature = "dbus")]
+extern crate dbus;
 extern crate libc;
-#[macro_use] extern crate chan;
+#[cfg(feature = "systemstat")]
+extern crate systemstat;
+#[cfg(feature = "xkb")]
+extern crate xcb;
+#[macro_use]
+extern crate chan;
 extern crate serde;
 extern crate serde_json;
-#[macro_use] extern crate serde_derive;
+#[macro_use]
+extern crate serde_derive;
 
 pub mod format;
 pub mod widget;
 
-use std::collections::BTreeMap;
 pub use format::*;
+use std::collections::BTreeMap;
 pub use widget::*;
 
 pub struct UnixBar<F: Formatter> {
@@ -33,12 +40,16 @@ impl<F: Formatter> UnixBar<F> {
     }
 
     pub fn register_fn<Fn>(&mut self, name: &str, func: Fn) -> &mut UnixBar<F>
-    where Fn: FnMut() + 'static {
-        self.fns.insert(name.to_owned(), Box::new(func)); self
+    where
+        Fn: FnMut() + 'static,
+    {
+        self.fns.insert(name.to_owned(), Box::new(func));
+        self
     }
 
     pub fn add(&mut self, widget: Box<Widget>) -> &mut UnixBar<F> {
-        self.widgets.push(widget); self
+        self.widgets.push(widget);
+        self
     }
 
     pub fn run(&mut self) {
@@ -67,7 +78,7 @@ impl<F: Formatter> UnixBar<F> {
     }
 
     fn show(&mut self) {
-        let vals : Vec<Format> = self.widgets.iter().map(|ref w| w.current_value()).collect();
+        let vals: Vec<Format> = self.widgets.iter().map(|ref w| w.current_value()).collect();
         let line = self.formatter.format_all(&vals);
         println!("{}", line.replace("\n", ""));
     }

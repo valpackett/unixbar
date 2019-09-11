@@ -1,20 +1,20 @@
-use std::time::Duration;
-use std::process::{Command, Stdio};
-use std::thread;
-use std::sync::{Arc, RwLock};
-use std::io::{BufReader, BufRead};
-use super::base::{Widget, Sender};
+use super::base::{Sender, Widget};
 use format::data::Format;
 use nom::IResult;
+use std::io::{BufRead, BufReader};
+use std::process::{Command, Stdio};
+use std::sync::{Arc, RwLock};
+use std::thread;
+use std::time::Duration;
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub enum WindowMode {
     Tiled,
     PseudoTiled,
     Floating,
     FullScreen,
     /// No window is focused
-    None
+    None,
 }
 impl WindowMode {
     fn from_byte(byte: Option<&[u8]>) -> WindowMode {
@@ -24,12 +24,12 @@ impl WindowMode {
             Some('P') => WindowMode::PseudoTiled,
             Some('F') => WindowMode::Floating,
             Some('=') => WindowMode::FullScreen,
-            _ => WindowMode::None
+            _ => WindowMode::None,
         }
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct BspwmState {
     pub desktops: Vec<BspwmDesktop>,
     pub monocle: bool,
@@ -81,14 +81,15 @@ named!(bspstr<&[u8], BspwmState>,
     )
 );
 
-
-
 pub struct Bspwm<F: Fn(BspwmState) -> Format> {
     updater: Arc<Box<F>>,
     last_value: Arc<RwLock<Format>>,
 }
 
-impl<F> Widget for Bspwm<F> where F: Fn(BspwmState) -> Format + Sync + Send + 'static  {
+impl<F> Widget for Bspwm<F>
+where
+    F: Fn(BspwmState) -> Format + Sync + Send + 'static,
+{
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -99,8 +100,11 @@ impl<F> Widget for Bspwm<F> where F: Fn(BspwmState) -> Format + Sync + Send + 's
         thread::spawn(move || {
             loop {
                 // Should be possible to use the socket directly...
-                let bspc = Command::new("bspc").arg("subscribe")
-                    .stdout(Stdio::piped()).spawn().expect("Couldn't run bspc");
+                let bspc = Command::new("bspc")
+                    .arg("subscribe")
+                    .stdout(Stdio::piped())
+                    .spawn()
+                    .expect("Couldn't run bspc");
                 for line in BufReader::new(bspc.stdout.unwrap()).lines() {
                     let mut writer = last_value.write().unwrap();
                     let line = line.unwrap_or("".to_owned());
@@ -115,7 +119,10 @@ impl<F> Widget for Bspwm<F> where F: Fn(BspwmState) -> Format + Sync + Send + 's
     }
 }
 
-impl<F> Bspwm<F> where F: Fn(BspwmState) -> Format {
+impl<F> Bspwm<F>
+where
+    F: Fn(BspwmState) -> Format,
+{
     pub fn new(updater: F) -> Box<Bspwm<F>> {
         Box::new(Bspwm {
             updater: Arc::new(Box::new(updater)),

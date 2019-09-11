@@ -5,10 +5,11 @@
 //! systemstat = "0"
 //! ```
 
-#[macro_use] extern crate unixbar;
+#[macro_use]
+extern crate unixbar;
 extern crate systemstat;
+use systemstat::{Platform, System};
 use unixbar::*;
-use systemstat::{System, Platform};
 
 fn main() {
     UnixBar::new(I3BarFormatter::new())

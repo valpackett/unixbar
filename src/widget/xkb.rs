@@ -1,7 +1,7 @@
+use super::base::{Sender, Widget};
+use format::data::Format;
 use std::sync::{Arc, RwLock};
 use std::thread;
-use super::base::{Widget, Sender};
-use format::data::Format;
 use xcb;
 use xcb::xkb;
 
@@ -12,7 +12,9 @@ pub struct Xkb<F: Fn(u8) -> Format> {
 }
 
 impl<F> Widget for Xkb<F>
-where F: Fn(u8) -> Format + Sync + Send + 'static {
+where
+    F: Fn(u8) -> Format + Sync + Send + 'static,
+{
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -27,9 +29,11 @@ where F: Fn(u8) -> Format + Sync + Send + 'static {
                     let cookie = xkb::use_extension(&conn, 1, 0);
                     match cookie.get_reply() {
                         Ok(r) => {
-                            if !r.supported() { return }
+                            if !r.supported() {
+                                return;
+                            }
                         }
-                        Err(_) => { return }
+                        Err(_) => return,
                     }
                 }
                 {
@@ -38,16 +42,23 @@ where F: Fn(u8) -> Format + Sync + Send + 'static {
                     let cookie = xkb::select_events_checked(
                         &conn,
                         xkb::ID_USE_CORE_KBD as u16,
-                        events as u16, 0, events as u16,
-                        map_parts as u16, map_parts as u16, None);
+                        events as u16,
+                        0,
+                        events as u16,
+                        map_parts as u16,
+                        map_parts as u16,
+                        None,
+                    );
                     let _ = cookie.request_check();
                 }
                 loop {
                     let event = conn.wait_for_event();
                     match event {
-                        None => { break; }
+                        None => {
+                            break;
+                        }
                         Some(event) => {
-                            let evt : &xkb::StateNotifyEvent = unsafe { xcb::cast_event(&event) };
+                            let evt: &xkb::StateNotifyEvent = unsafe { xcb::cast_event(&event) };
                             let new_id = evt.group();
                             let mut id_writer = last_id.write().unwrap();
                             if *id_writer != new_id {
@@ -59,12 +70,17 @@ where F: Fn(u8) -> Format + Sync + Send + 'static {
                         }
                     }
                 }
-            } else { return }
+            } else {
+                return;
+            }
         });
     }
 }
 
-impl<F> Xkb<F> where F: Fn(u8) -> Format {
+impl<F> Xkb<F>
+where
+    F: Fn(u8) -> Format,
+{
     pub fn new(formatter: F) -> Box<Xkb<F>> {
         let v = formatter(0);
         Box::new(Xkb {

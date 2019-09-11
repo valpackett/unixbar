@@ -1,11 +1,11 @@
-use std::time::Duration;
-use std::thread;
+use super::base::{Sender, Widget};
 use chrono::Local;
-use super::base::{Widget, Sender};
 use format::data::Format;
+use std::thread;
+use std::time::Duration;
 
 pub struct DateTime {
-    format: String
+    format: String,
 }
 
 impl Widget for DateTime {
@@ -15,17 +15,17 @@ impl Widget for DateTime {
 
     fn spawn_notifier(&mut self, tx: Sender<()>) {
         let seconds = if self.format.contains("%S") { 1 } else { 60 };
-        thread::spawn(move|| {
-            loop {
-                thread::sleep(Duration::from_secs(seconds));
-                let _ = tx.send(());
-            }
+        thread::spawn(move || loop {
+            thread::sleep(Duration::from_secs(seconds));
+            let _ = tx.send(());
         });
     }
 }
 
 impl DateTime {
     pub fn new(format: &str) -> Box<DateTime> {
-        Box::new(DateTime { format: format.to_owned() })
+        Box::new(DateTime {
+            format: format.to_owned(),
+        })
     }
 }

@@ -1,13 +1,15 @@
+use format::data::Format;
 use std::sync::Arc;
 use std::time::Duration;
-use widget::base::{Widget, Sender};
-use format::data::Format;
+use widget::base::{Sender, Widget};
 
 pub mod mpd;
 pub use self::mpd::MPDMusic;
 
-#[cfg(feature = "dbus")] pub mod mpris;
-#[cfg(feature = "dbus")] pub use self::mpris::MPRISMusic;
+#[cfg(feature = "dbus")]
+pub mod mpris;
+#[cfg(feature = "dbus")]
+pub use self::mpris::MPRISMusic;
 
 #[derive(Debug, Clone)]
 pub struct PlaybackInfo {
@@ -30,7 +32,7 @@ pub struct SongInfo {
     pub musicbrainz_track: Option<String>,
     pub musicbrainz_artist: Option<String>,
     pub musicbrainz_album: Option<String>,
-    pub playback: Option<PlaybackInfo>
+    pub playback: Option<PlaybackInfo>,
 }
 
 pub struct Music<F: Fn(SongInfo) -> Format, B: MusicBackend<F>> {
@@ -38,7 +40,11 @@ pub struct Music<F: Fn(SongInfo) -> Format, B: MusicBackend<F>> {
     backend: B,
 }
 
-impl<F, B> Widget for Music<F, B> where F: Fn(SongInfo) -> Format + Sync + Send + 'static, B: MusicBackend<F> {
+impl<F, B> Widget for Music<F, B>
+where
+    F: Fn(SongInfo) -> Format + Sync + Send + 'static,
+    B: MusicBackend<F>,
+{
     fn current_value(&self) -> Format {
         self.backend.current_value()
     }
@@ -48,7 +54,11 @@ impl<F, B> Widget for Music<F, B> where F: Fn(SongInfo) -> Format + Sync + Send 
     }
 }
 
-impl<F, B> Music<F, B> where F: Fn(SongInfo) -> Format, B: MusicBackend<F> {
+impl<F, B> Music<F, B>
+where
+    F: Fn(SongInfo) -> Format,
+    B: MusicBackend<F>,
+{
     pub fn new(backend: B, updater: F) -> Box<Music<F, B>> {
         Box::new(Music {
             updater: Arc::new(Box::new(updater)),

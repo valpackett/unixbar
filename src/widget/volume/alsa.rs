@@ -1,15 +1,15 @@
-use ::alsa::PollDescriptors;
-use ::alsa::mixer::{Mixer, SelemId, SelemChannelId};
-use ::alsa::ctl::Ctl;
+use alsa::ctl::Ctl;
+use alsa::mixer::{Mixer, SelemChannelId, SelemId};
+use alsa::PollDescriptors;
 
 use format::data::Format;
 use widget::base::Sender;
 
+use std::ffi::CString;
 use std::sync::{Arc, RwLock};
 use std::thread;
-use std::ffi::CString;
 
-use libc::{pollfd, poll}; // TODO use mio/epoll?
+use libc::{poll, pollfd}; // TODO use mio/epoll?
 
 use super::{VolumeBackend, VolumeState};
 
@@ -29,8 +29,12 @@ impl ALSA {
         let selem_id = SelemId::new("Master", 0);
         let selem = mixer.find_selem(&selem_id).unwrap();
         let (min, max) = selem.get_playback_volume_range();
-        let volume = selem.get_playback_volume(SelemChannelId::FrontLeft).unwrap();
-        let switch = selem.get_playback_switch(SelemChannelId::FrontLeft).unwrap();
+        let volume = selem
+            .get_playback_volume(SelemChannelId::FrontLeft)
+            .unwrap();
+        let switch = selem
+            .get_playback_switch(SelemChannelId::FrontLeft)
+            .unwrap();
         VolumeState {
             volume: (volume as f64 / (max - min) as f64) as f32,
             muted: switch == 0,
@@ -39,8 +43,9 @@ impl ALSA {
 }
 
 impl<F> VolumeBackend<F> for ALSA
-    where F: Fn(VolumeState) -> Format + Sync + Send + 'static {
-
+where
+    F: Fn(VolumeState) -> Format + Sync + Send + 'static,
+{
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -50,7 +55,14 @@ impl<F> VolumeBackend<F> for ALSA
         ctl.subscribe_events(true).unwrap();
 
         let mut fds = Vec::<pollfd>::with_capacity(ctl.count());
-        fds.resize(ctl.count(), pollfd {fd: 0, events: 0, revents: 0});
+        fds.resize(
+            ctl.count(),
+            pollfd {
+                fd: 0,
+                events: 0,
+                revents: 0,
+            },
+        );
         let filled = ctl.fill(&mut fds).unwrap();
         assert!(filled == ctl.count());
 
@@ -75,8 +87,8 @@ impl<F> VolumeBackend<F> for ALSA
                         let mut writer = last_value.write().unwrap();
                         *writer = (*updater)(state);
                         let _ = tx.send(());
-                    },
-                    _ => continue
+                    }
+                    _ => continue,
                 }
             }
         });

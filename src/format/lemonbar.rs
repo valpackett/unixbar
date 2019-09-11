@@ -7,30 +7,40 @@ pub struct LemonbarFormatter {
 impl Formatter for LemonbarFormatter {
     fn format(&mut self, data: &Format) -> String {
         match *data {
-            Format::UnescapedStr(ref s) =>
-                s.clone(),
-            Format::Str(ref s) =>
-                if self.escape { s.replace("%", "%%") } else { s.to_owned() },
-            Format::Concat(ref fs) =>
-                fs.iter().map(|f| self.format(f)).fold("".to_owned(), |a, b| a + &b),
-            Format::Align(ref a, ref f) =>
-                format!("{}{}", match *a {
+            Format::UnescapedStr(ref s) => s.clone(),
+            Format::Str(ref s) => {
+                if self.escape {
+                    s.replace("%", "%%")
+                } else {
+                    s.to_owned()
+                }
+            }
+            Format::Concat(ref fs) => fs
+                .iter()
+                .map(|f| self.format(f))
+                .fold("".to_owned(), |a, b| a + &b),
+            Format::Align(ref a, ref f) => format!(
+                "{}{}",
+                match *a {
                     Alignment::Left => "%{l}",
                     Alignment::Center => "%{c}",
                     Alignment::Right => "%{r}",
-                }, self.format(f)),
-            Format::FgColor(ref c, ref f) =>
-                format!("%{{F{}}}{}%{{F-}}", c, self.format(f)),
-            Format::BgColor(ref c, ref f) =>
-                format!("%{{B{}}}{}%{{B-}}", c, self.format(f)),
+                },
+                self.format(f)
+            ),
+            Format::FgColor(ref c, ref f) => format!("%{{F{}}}{}%{{F-}}", c, self.format(f)),
+            Format::BgColor(ref c, ref f) => format!("%{{B{}}}{}%{{B-}}", c, self.format(f)),
             Format::NoSeparator(ref f) => self.format(f),
             Format::Padding(_, ref f) => self.format(f),
-            Format::Clickable(ref act, ref f) =>
-                match act {
-                    &ClickAction::ShellCommand(ref mb, ref a) =>
-                        format!("%{{A{}:{}:}}{}%{{A}}", mouse_button(mb), a.replace(":", "\\:"), self.format(f)),
-                    _ => self.format(f), // TODO
-                }
+            Format::Clickable(ref act, ref f) => match act {
+                &ClickAction::ShellCommand(ref mb, ref a) => format!(
+                    "%{{A{}:{}:}}{}%{{A}}",
+                    mouse_button(mb),
+                    a.replace(":", "\\:"),
+                    self.format(f)
+                ),
+                _ => self.format(f), // TODO
+            },
         }
     }
 }

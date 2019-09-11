@@ -1,4 +1,4 @@
-use super::base::{Widget, Sender};
+use super::base::{Sender, Widget};
 use format::data::Format;
 
 pub struct Wrap<W, F> {
@@ -7,7 +7,10 @@ pub struct Wrap<W, F> {
 }
 
 impl<W, F> Widget for Wrap<W, F>
-where W: Widget, F: Fn(Format) -> Format {
+where
+    W: Widget,
+    F: Fn(Format) -> Format,
+{
     fn current_value(&self) -> Format {
         (*self.wrapper)(self.widget.current_value())
     }
@@ -19,6 +22,9 @@ where W: Widget, F: Fn(Format) -> Format {
 
 impl<W, F> Wrap<W, F> {
     pub fn new(wrapper: F, widget: Box<W>) -> Box<Wrap<W, F>> {
-        Box::new(Wrap { widget: widget, wrapper: Box::new(wrapper) })
+        Box::new(Wrap {
+            widget: widget,
+            wrapper: Box::new(wrapper),
+        })
     }
 }

@@ -1,12 +1,12 @@
-use widget::base::Sender;
-use std::time::Duration;
-use std::io::{BufReader, BufRead};
-use std::thread;
-use std::sync::{Arc, RwLock};
-use std::process::{Command, Stdio};
-use nom::IResult;
-use format::data::Format;
 use super::{MusicBackend, MusicControl, PlaybackInfo, SongInfo};
+use format::data::Format;
+use nom::IResult;
+use std::io::{BufRead, BufReader};
+use std::process::{Command, Stdio};
+use std::sync::{Arc, RwLock};
+use std::thread;
+use std::time::Duration;
+use widget::base::Sender;
 
 named!(parse_playback_info<&[u8], PlaybackInfo>,
     do_parse!(
@@ -44,17 +44,23 @@ named!(parse_playback_info<&[u8], PlaybackInfo>,
 );
 
 fn mpc_get_format(format: &'static str) -> Option<String> {
-    let mpc = Command::new("mpc").arg("-f").arg(format)
-        .stdout(Stdio::piped()).spawn()
+    let mpc = Command::new("mpc")
+        .arg("-f")
+        .arg(format)
+        .stdout(Stdio::piped())
+        .spawn()
         .expect("Couldn't run `mpc -f`");
 
-    BufReader::new(mpc.stdout.unwrap()).lines().next()
+    BufReader::new(mpc.stdout.unwrap())
+        .lines()
+        .next()
         .and_then(|result| result.ok())
 }
 
 fn get_playback_info() -> Option<PlaybackInfo> {
     let mpc = Command::new("mpc")
-        .stdout(Stdio::piped()).spawn()
+        .stdout(Stdio::piped())
+        .spawn()
         .expect("Couldn't run `mpc` to get song info");
     for line in BufReader::new(mpc.stdout.unwrap()).lines() {
         let line = line.unwrap_or("".to_owned());
@@ -109,8 +115,9 @@ impl MusicControl for MPDMusic {
 }
 
 impl<F> MusicBackend<F> for MPDMusic
-where F: Fn(SongInfo) -> Format + Sync + Send + 'static {
-
+where
+    F: Fn(SongInfo) -> Format + Sync + Send + 'static,
+{
     fn current_value(&self) -> Format {
         (*self.last_value).read().unwrap().clone()
     }
@@ -138,7 +145,11 @@ where F: Fn(SongInfo) -> Format + Sync + Send + 'static {
                 }
 
                 // Wait for event
-                let _ = Command::new("mpc").arg("idle").arg("player").stdout(Stdio::null()).status();
+                let _ = Command::new("mpc")
+                    .arg("idle")
+                    .arg("player")
+                    .stdout(Stdio::null())
+                    .status();
             }
         });
     }

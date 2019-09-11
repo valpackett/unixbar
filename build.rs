@@ -1,4 +1,5 @@
-#[cfg(feature = "xkb")] extern crate pkg_config;
+#[cfg(feature = "xkb")]
+extern crate pkg_config;
 
 fn main() {
     if cfg!(feature = "xkb") {

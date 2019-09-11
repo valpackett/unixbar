@@ -1,8 +1,8 @@
-use super::base::{Widget, Sender};
+use super::base::{Sender, Widget};
 use format::data::Format;
 
 pub struct Text {
-    text: Format
+    text: Format,
 }
 
 impl Widget for Text {
